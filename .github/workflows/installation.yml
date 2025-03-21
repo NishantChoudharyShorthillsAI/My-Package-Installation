@@ -1,0 +1,50 @@
+name: Deploy Nginx, Tree, and MySQL on EC2
+
+on:
+  push:
+    branches:
+      - main  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 400 private_key.pem
+
+      - name: Install Nginx and Tree in Parallel
+        env:
+          HOST: ${{ secrets.EC2_PUBLIC_IP }}
+          USER: ubuntu  # Change to ec2-user for Amazon Linux
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $USER@$HOST << 'EOF'
+          sudo apt update -y
+          
+          # Install Nginx in background
+          sudo apt install nginx -y & 
+          
+          # Install Tree in background
+          sudo apt install tree -y &
+
+          # Wait for both to complete
+          wait 
+
+          echo "Nginx and Tree Installation Completed"
+          EOF
+
+      - name: Install MySQL after Nginx
+        env:
+          HOST: ${{ secrets.EC2_PUBLIC_IP }}
+          USER: ubuntu
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $USER@$HOST << 'EOF'
+          sudo apt install mysql-server -y
+          sudo systemctl start mysql
+          sudo systemctl enable mysql
+          echo "MySQL Installation Completed"
+          EOF
