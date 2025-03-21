@@ -1,0 +1,33 @@
+name: Multi-Agent Workflow
+
+on:
+  workflow_dispatch:  # Manually triggered workflow
+
+jobs:
+  job1:
+    name: Run on Ubuntu
+    runs-on: ubuntu-latest  # Uses GitHub-hosted Ubuntu runner
+    steps:
+      - name: Execute on Ubuntu
+        run: echo "This job runs on an Ubuntu agent"
+
+  job2:
+    name: Run on Windows
+    runs-on: windows-latest  # Uses GitHub-hosted Windows runner
+    steps:
+      - name: Execute on Windows
+        run: echo "This job runs on a Windows agent"
+
+  job3:
+    name: Run on macOS
+    runs-on: macos-latest  # Uses GitHub-hosted macOS runner
+    steps:
+      - name: Execute on macOS
+        run: echo "This job runs on a macOS agent"
+
+  job4:
+    name: Run on Self-Hosted Runner
+    runs-on: self-hosted  # Uses a self-hosted runner
+    steps:
+      - name: Execute on Self-Hosted Agent
+        run: echo "This job runs on a self-hosted runner"
