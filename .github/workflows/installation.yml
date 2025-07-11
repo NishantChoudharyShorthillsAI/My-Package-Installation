@@ -1,9 +1,10 @@
 name: Deploy Nginx, Tree, and MySQL on EC2
 
 on:
-  push:
-    branches:
-      - main  
+  # push:
+  #   branches:
+  #     - main 
+  workflow_dispatch:
 
 jobs:
   install_nginx:
