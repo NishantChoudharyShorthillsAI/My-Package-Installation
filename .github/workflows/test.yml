@@ -1,0 +1,57 @@
+name: Deployment of the Backend Application
+
+on: 
+  workflow_dispatch:
+    inputs:
+      instance:
+        description: "Which instance to SSH into? (PreTest or Prod)"
+        required: true
+        default: "PreTest"
+        type: choice
+        options:
+          - PreTest
+          - Prod
+     
+        
+jobs: 
+  build: 
+    # `build` job depends on `notify-unauthorized`
+    runs-on: ubuntu-latest
+
+    steps: 
+      - name: Check User Access
+        run: echo "Workflow triggered by authorized user -> ${{ github.actor }}"
+        
+      - name: Set SSH Variables Based on Instance
+        id: set-ssh-vars
+        run: |
+          if [[ "${{ github.event.inputs.instance }}" == "PreTest" ]]; then
+            echo "host=15.168.51.229" >> $GITHUB_ENV
+            echo "username=ubuntu" >> $GITHUB_ENV
+            echo "key<<EOF" >> $GITHUB_ENV
+            echo "${{ secrets.PRETEST_PEM_KEY }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+            echo "instance=Digitree-PreTest-t2" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.instance }}" == "Prod" ]]; then
+            echo "host=13.208.146.208" >> $GITHUB_ENV
+            echo "username=ubuntu" >> $GITHUB_ENV
+            echo "key<<EOF" >> $GITHUB_ENV
+            echo "${{ secrets.PROD_PEM_KEY}}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+            echo "instance=Digitree-Prod-t2" >> $GITHUB_ENV
+          else
+            echo "Invalid instance specified. Must be 'PreTest' or 'Prod'."
+            exit 1
+          fi
+          
+      - name: Executing Remote SSH Commands
+        uses: appleboy/ssh-action@master  
+        with:  
+          host: ${{ env.host }}  
+          username: ${{ env.username }}  
+          key: ${{ env.key }}  
+          script: |
+            echo "Starting Deployment on ${{ env.instance }} instance"
+            ls
+
+      
