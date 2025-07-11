@@ -26,7 +26,7 @@ jobs:
         id: set-ssh-vars
         run: |
           if [[ "${{ github.event.inputs.instance }}" == "PreTest" ]]; then
-            echo "host=15.168.51.229" >> $GITHUB_ENV
+            echo "host=15.168.51.22" >> $GITHUB_ENV
             echo "username=ubuntu" >> $GITHUB_ENV
             echo "key<<EOF" >> $GITHUB_ENV
             echo "${{ secrets.PRETEST_PEM_KEY }}" >> $GITHUB_ENV
